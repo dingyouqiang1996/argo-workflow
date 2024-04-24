@@ -290,7 +290,7 @@ spec:
 	woc := newWorkflowOperationCtx(wf, controller)
 	woc.operate(ctx)
 
-	makePodsPhase(ctx, woc, apiv1.PodRunning, withProgress("50/100"))
+	makePodsPhase(ctx, woc, apiv1.PodRunning)
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)
 
@@ -300,7 +300,7 @@ spec:
 	pod := woc.wf.Status.Nodes.FindByDisplayName("pod")
 	assert.Equal(t, wfv1.Progress("50/100"), pod.Progress)
 
-	makePodsPhase(ctx, woc, apiv1.PodSucceeded, withProgress("100/100"))
+	makePodsPhase(ctx, woc, apiv1.PodSucceeded)
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)
 
@@ -6288,7 +6288,7 @@ func TestConfigMapCacheSaveOperate(t *testing.T) {
 
 	ctx := context.Background()
 	woc.operate(ctx)
-	makePodsPhase(ctx, woc, apiv1.PodSucceeded, withExitCode(0), withOutputs(wfv1.MustMarshallJSON(sampleOutputs)))
+	makePodsPhase(ctx, woc, apiv1.PodSucceeded, withExitCode(0))
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)
 
@@ -6578,7 +6578,7 @@ spec:
 	assert.Equal(t, wfv1.WorkflowRunning, woc.wf.Status.Phase)
 
 	// make all created pods as successful
-	makePodsPhase(ctx, woc, apiv1.PodSucceeded, withOutputs(`{"parameters": [{"name": "my-param"}]}`))
+	makePodsPhase(ctx, woc, apiv1.PodSucceeded)
 
 	// reconcile
 	woc = newWorkflowOperationCtx(woc.wf, controller)
@@ -8653,7 +8653,6 @@ func TestWFGlobalArtifactNil(t *testing.T) {
 	makePodsPhase(ctx, woc, apiv1.PodRunning)
 	woc.operate(ctx)
 	makePodsPhase(ctx, woc, apiv1.PodFailed, func(pod *apiv1.Pod) {
-		pod.Annotations[common.AnnotationKeyOutputs] = string("{\"parameters\":[{\"name\":\"hello-param\",\"valueFrom\":{\"path\":\"/tmp/hello_world.txt\"},\"globalName\":\"my-global-param\"}],\"artifacts\":[{\"name\":\"hello-art\",\"path\":\"/tmp/hello_world.txt\",\"globalName\":\"my-global-art\"}]}")
 		pod.Status.ContainerStatuses = []apiv1.ContainerStatus{
 			{
 				Name: "main",
