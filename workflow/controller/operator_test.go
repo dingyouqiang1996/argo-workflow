@@ -3298,7 +3298,8 @@ func TestResolveIOPathPlaceholders(t *testing.T) {
 	assert.True(t, len(pods.Items) > 0, "pod was not created successfully")
 
 	assert.Equal(t, append(append([]string{"/var/run/argo/argoexec", "emissary"}, woc.getExecutorLogOpts()...),
-		"--", "sh", "-c", "head -n 3 <\"/inputs/text/data\" | tee \"/outputs/text/data\" | wc -l > \"/outputs/actual-lines-count/data\""), pods.Items[0].Spec.Containers[1].Command)
+		"--", "sh", "-c", "head -n 3 <\"/inputs/text/data\" | tee \"/outputs/text/data\" | wc -l > \"/outputs/actual-lines-count/data\"",
+	), pods.Items[0].Spec.Containers[1].Command)
 }
 
 var outputValuePlaceholders = `

@@ -660,13 +660,15 @@ func Test_createWorkflowPod_emissary(t *testing.T) {
 		woc := newWoc()
 		pod, err := woc.createWorkflowPod(context.Background(), "", []apiv1.Container{{Command: []string{"foo"}}}, &wfv1.Template{}, &createWorkflowPodOpts{})
 		assert.NoError(t, err)
-		assert.Equal(t, append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "foo"), pod.Spec.Containers[1].Command)
+		cmd := append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "foo")
+		assert.Equal(t, cmd, pod.Spec.Containers[1].Command)
 	})
 	t.Run("NoCommandWithImageIndex", func(t *testing.T) {
 		woc := newWoc()
 		pod, err := woc.createWorkflowPod(context.Background(), "", []apiv1.Container{{Image: "my-image"}}, &wfv1.Template{}, &createWorkflowPodOpts{})
 		if assert.NoError(t, err) {
-			assert.Equal(t, append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "my-entrypoint"), pod.Spec.Containers[1].Command)
+			cmd := append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "my-entrypoint")
+			assert.Equal(t, cmd, pod.Spec.Containers[1].Command)
 			assert.Equal(t, []string{"my-cmd"}, pod.Spec.Containers[1].Args)
 		}
 	})
@@ -674,7 +676,8 @@ func Test_createWorkflowPod_emissary(t *testing.T) {
 		woc := newWoc()
 		pod, err := woc.createWorkflowPod(context.Background(), "", []apiv1.Container{{Image: "my-image", Args: []string{"foo"}}}, &wfv1.Template{}, &createWorkflowPodOpts{})
 		if assert.NoError(t, err) {
-			assert.Equal(t, append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "my-entrypoint"), pod.Spec.Containers[1].Command)
+			cmd := append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "my-entrypoint")
+			assert.Equal(t, cmd, pod.Spec.Containers[1].Command)
 			assert.Equal(t, []string{"foo"}, pod.Spec.Containers[1].Args)
 		}
 	})
@@ -689,7 +692,8 @@ func Test_createWorkflowPod_emissary(t *testing.T) {
 		assert.NoError(t, err)
 		pod, err := woc.createWorkflowPod(context.Background(), "", []apiv1.Container{{Command: []string{"foo"}}}, &wfv1.Template{PodSpecPatch: string(podSpecPatch)}, &createWorkflowPodOpts{})
 		assert.NoError(t, err)
-		assert.Equal(t, append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "bar"), pod.Spec.Containers[1].Command)
+		cmd := append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "bar")
+		assert.Equal(t, cmd, pod.Spec.Containers[1].Command)
 	})
 }
 
@@ -745,7 +749,8 @@ func TestVolumeAndVolumeMounts(t *testing.T) {
 				assert.Equal(t, "var-run-argo", wait.VolumeMounts[2].Name)
 			}
 			main := containers[1]
-			assert.Equal(t, append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "cowsay"), main.Command)
+			cmd := append(append(emissaryCmd, woc.getExecutorLogOpts()...), "--", "cowsay")
+			assert.Equal(t, cmd, main.Command)
 			if assert.Len(t, main.VolumeMounts, 2) {
 				assert.Equal(t, "volume-name", main.VolumeMounts[0].Name)
 				assert.Equal(t, "var-run-argo", main.VolumeMounts[1].Name)
