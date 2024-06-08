@@ -6291,9 +6291,6 @@ func TestConfigMapCacheSaveOperate(t *testing.T) {
 	makePodsPhase(ctx, woc, apiv1.PodSucceeded, withOutputs(sampleOutputs))
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)
-	makePodsPhase(ctx, woc, apiv1.PodSucceeded)
-	woc = newWorkflowOperationCtx(woc.wf, controller)
-	woc.operate(ctx)
 
 	cm, err := controller.kubeclientset.CoreV1().ConfigMaps("default").Get(ctx, "whalesay-cache", metav1.GetOptions{})
 	if assert.NoError(t, err) {
