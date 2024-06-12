@@ -38,6 +38,7 @@ spec:
   entrypoint: main
   templates:
     - name: main
+	  serviceAccountName: argo
       container:
         name: main
         image: bitnami/kubectl
