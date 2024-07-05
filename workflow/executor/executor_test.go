@@ -481,7 +481,7 @@ func TestSaveArtifacts(t *testing.T) {
 
 	for _, tt := range tests {
 		ctx := context.Background()
-		err := tt.workflowExecutor.SaveArtifacts(ctx)
+		_, err := tt.workflowExecutor.SaveArtifacts(ctx)
 		if err != nil {
 			assert.Equal(t, tt.expectError, true)
 			continue
@@ -544,7 +544,7 @@ func TestSaveLogs(t *testing.T) {
 	t.Run("Simple Pod node", func(t *testing.T) {
 		templateWithArchiveLogs := wfv1.Template{
 			ArchiveLocation: &wfv1.ArtifactLocation{
-				ArchiveLogs: pointer.BoolPtr(true),
+				ArchiveLogs: pointer.Bool(true),
 			},
 		}
 		we := WorkflowExecutor{

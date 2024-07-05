@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow"
@@ -43,6 +44,15 @@ func (s *FunctionalSuite) TestDeletingPendingPod() {
 		When().
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToStart).
+		// patch the pod to remove the finalizer
+		Exec("kubectl", []string{"-n", "argo", "patch", "pod", func() string {
+			podList, err := s.KubeClient.CoreV1().Pods("argo").List(context.Background(), metav1.ListOptions{LabelSelector: "workflows.argoproj.io/workflow"})
+			if err != nil {
+				panic(err)
+			}
+			return podList.Items[0].Name
+		}(), "-p", `{"metadata":{"finalizers":[]}}`, "--type", "merge"}, fixtures.OutputRegexp(`pod/.* patched`)).
+		Wait(time.Second).
 		Exec("kubectl", []string{"-n", "argo", "delete", "pod", "-l", "workflows.argoproj.io/workflow"}, fixtures.OutputRegexp(`pod "pending-.*" deleted`)).
 		Wait(time.Duration(3*fixtures.EnvFactor)*time.Second). // allow 3s for reconciliation, we'll create a new pod
 		Exec("kubectl", []string{"-n", "argo", "get", "pod", "-l", "workflows.argoproj.io/workflow"}, fixtures.OutputRegexp(`pending-.*Pending`))
@@ -908,6 +918,9 @@ func (s *FunctionalSuite) TestDataTransformation() {
 			}
 			assert.NotNil(t, status.Nodes.FindByDisplayName("process-artifact(0:foo/script.py)"))
 			assert.NotNil(t, status.Nodes.FindByDisplayName("process-artifact(1:script.py)"))
+			for _, value := range status.TaskResultsCompletionStatus {
+				assert.True(t, value)
+			}
 		})
 }
 
@@ -1342,4 +1355,29 @@ func (s *FunctionalSuite) TestWithItemsWithHooks() {
 		When().
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeSucceeded)
+}
+
+// when you terminate a workflow with onexit handler,
+// then the onexit handler should fail along with steps and stepsGroup
+func (s *FunctionalSuite) TestTerminateWorkflowWhileOnExitHandlerRunning() {
+	s.Given().
+		Workflow("@functional/workflow-exit-handler-sleep.yaml").
+		When().
+		SubmitWorkflow().
+		WaitForWorkflow(fixtures.ToBeRunning).
+		WaitForWorkflow(fixtures.Condition(func(wf *wfv1.Workflow) (bool, string) {
+			a := wf.Status.Nodes.FindByDisplayName("workflow-exit-handler-sleep")
+			return wfv1.NodeSucceeded == a.Phase, "nodes succeeded"
+		})).
+		ShutdownWorkflow(wfv1.ShutdownStrategyTerminate).
+		WaitForWorkflow(fixtures.ToBeFailed).
+		Then().
+		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *wfv1.WorkflowStatus) {
+			for _, node := range status.Nodes {
+				if node.Type == wfv1.NodeTypeStepGroup || node.Type == wfv1.NodeTypeSteps {
+					assert.Equal(t, node.Phase, wfv1.NodeFailed)
+				}
+			}
+			assert.Equal(t, status.Phase, wfv1.WorkflowFailed)
+		})
 }
