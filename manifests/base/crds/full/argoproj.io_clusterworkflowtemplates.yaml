@@ -918,6 +918,18 @@ spec:
                               - key
                               type: object
                               x-kubernetes-map-type: atomic
+                            sessionTokenSecret:
+                              properties:
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                                optional:
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                              x-kubernetes-map-type: atomic
                             useSDKCreds:
                               type: boolean
                           type: object
@@ -1558,6 +1570,18 @@ spec:
                                   roleARN:
                                     type: string
                                   secretKeySecret:
+                                    properties:
+                                      key:
+                                        type: string
+                                      name:
+                                        type: string
+                                      optional:
+                                        type: boolean
+                                    required:
+                                    - key
+                                    type: object
+                                    x-kubernetes-map-type: atomic
+                                  sessionTokenSecret:
                                     properties:
                                       key:
                                         type: string
@@ -2781,6 +2805,18 @@ spec:
                           roleARN:
                             type: string
                           secretKeySecret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                              optional:
+                                type: boolean
+                            required:
+                            - key
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          sessionTokenSecret:
                             properties:
                               key:
                                 type: string
@@ -4579,6 +4615,18 @@ spec:
                                             - key
                                             type: object
                                             x-kubernetes-map-type: atomic
+                                          sessionTokenSecret:
+                                            properties:
+                                              key:
+                                                type: string
+                                              name:
+                                                type: string
+                                              optional:
+                                                type: boolean
+                                            required:
+                                            - key
+                                            type: object
+                                            x-kubernetes-map-type: atomic
                                           useSDKCreds:
                                             type: boolean
                                         type: object
@@ -5167,6 +5215,18 @@ spec:
                                                 roleARN:
                                                   type: string
                                                 secretKeySecret:
+                                                  properties:
+                                                    key:
+                                                      type: string
+                                                    name:
+                                                      type: string
+                                                    optional:
+                                                      type: boolean
+                                                  required:
+                                                  - key
+                                                  type: object
+                                                  x-kubernetes-map-type: atomic
+                                                sessionTokenSecret:
                                                   properties:
                                                     key:
                                                       type: string
@@ -5817,6 +5877,18 @@ spec:
                                   roleARN:
                                     type: string
                                   secretKeySecret:
+                                    properties:
+                                      key:
+                                        type: string
+                                      name:
+                                        type: string
+                                      optional:
+                                        type: boolean
+                                    required:
+                                    - key
+                                    type: object
+                                    x-kubernetes-map-type: atomic
+                                  sessionTokenSecret:
                                     properties:
                                       key:
                                         type: string
@@ -7046,6 +7118,18 @@ spec:
                                   - key
                                   type: object
                                   x-kubernetes-map-type: atomic
+                                sessionTokenSecret:
+                                  properties:
+                                    key:
+                                      type: string
+                                    name:
+                                      type: string
+                                    optional:
+                                      type: boolean
+                                  required:
+                                  - key
+                                  type: object
+                                  x-kubernetes-map-type: atomic
                                 useSDKCreds:
                                   type: boolean
                               type: object
@@ -7736,6 +7820,18 @@ spec:
                                   - key
                                   type: object
                                   x-kubernetes-map-type: atomic
+                                sessionTokenSecret:
+                                  properties:
+                                    key:
+                                      type: string
+                                    name:
+                                      type: string
+                                    optional:
+                                      type: boolean
+                                  required:
+                                  - key
+                                  type: object
+                                  x-kubernetes-map-type: atomic
                                 useSDKCreds:
                                   type: boolean
                               type: object
@@ -8335,6 +8431,18 @@ spec:
                                   roleARN:
                                     type: string
                                   secretKeySecret:
+                                    properties:
+                                      key:
+                                        type: string
+                                      name:
+                                        type: string
+                                      optional:
+                                        type: boolean
+                                    required:
+                                    - key
+                                    type: object
+                                    x-kubernetes-map-type: atomic
+                                  sessionTokenSecret:
                                     properties:
                                       key:
                                         type: string
@@ -11278,6 +11386,18 @@ spec:
                               - key
                               type: object
                               x-kubernetes-map-type: atomic
+                            sessionTokenSecret:
+                              properties:
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                                optional:
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                              x-kubernetes-map-type: atomic
                             useSDKCreds:
                               type: boolean
                           type: object
@@ -13065,6 +13185,18 @@ spec:
                                               - key
                                               type: object
                                               x-kubernetes-map-type: atomic
+                                            sessionTokenSecret:
+                                              properties:
+                                                key:
+                                                  type: string
+                                                name:
+                                                  type: string
+                                                optional:
+                                                  type: boolean
+                                              required:
+                                              - key
+                                              type: object
+                                              x-kubernetes-map-type: atomic
                                             useSDKCreds:
                                               type: boolean
                                           type: object
@@ -13653,6 +13785,18 @@ spec:
                                                   roleARN:
                                                     type: string
                                                   secretKeySecret:
+                                                    properties:
+                                                      key:
+                                                        type: string
+                                                      name:
+                                                        type: string
+                                                      optional:
+                                                        type: boolean
+                                                    required:
+                                                    - key
+                                                    type: object
+                                                    x-kubernetes-map-type: atomic
+                                                  sessionTokenSecret:
                                                     properties:
                                                       key:
                                                         type: string
@@ -14303,6 +14447,18 @@ spec:
                                     roleARN:
                                       type: string
                                     secretKeySecret:
+                                      properties:
+                                        key:
+                                          type: string
+                                        name:
+                                          type: string
+                                        optional:
+                                          type: boolean
+                                      required:
+                                      - key
+                                      type: object
+                                      x-kubernetes-map-type: atomic
+                                    sessionTokenSecret:
                                       properties:
                                         key:
                                           type: string
@@ -15532,6 +15688,18 @@ spec:
                                     - key
                                     type: object
                                     x-kubernetes-map-type: atomic
+                                  sessionTokenSecret:
+                                    properties:
+                                      key:
+                                        type: string
+                                      name:
+                                        type: string
+                                      optional:
+                                        type: boolean
+                                    required:
+                                    - key
+                                    type: object
+                                    x-kubernetes-map-type: atomic
                                   useSDKCreds:
                                     type: boolean
                                 type: object
@@ -16222,6 +16390,18 @@ spec:
                                     - key
                                     type: object
                                     x-kubernetes-map-type: atomic
+                                  sessionTokenSecret:
+                                    properties:
+                                      key:
+                                        type: string
+                                      name:
+                                        type: string
+                                      optional:
+                                        type: boolean
+                                    required:
+                                    - key
+                                    type: object
+                                    x-kubernetes-map-type: atomic
                                   useSDKCreds:
                                     type: boolean
                                 type: object
@@ -16821,6 +17001,18 @@ spec:
                                     roleARN:
                                       type: string
                                     secretKeySecret:
+                                      properties:
+                                        key:
+                                          type: string
+                                        name:
+                                          type: string
+                                        optional:
+                                          type: boolean
+                                      required:
+                                      - key
+                                      type: object
+                                      x-kubernetes-map-type: atomic
+                                    sessionTokenSecret:
                                       properties:
                                         key:
                                           type: string
