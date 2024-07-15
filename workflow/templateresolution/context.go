@@ -69,6 +69,10 @@ type Context struct {
 	wftmplGetter WorkflowTemplateNamespacedGetter
 	// cwftmplGetter is an interface to get ClusterWorkflowTemplates
 	cwftmplGetter ClusterWorkflowTemplateGetter
+	// wftmplClient is an interface to operate WorkflowTemplates.
+	wftmplClient typed.WorkflowTemplateInterface
+	// cwftmplClient is an interface to operate ClusterWorkflowTemplates
+	cwftmplClient typed.ClusterWorkflowTemplateInterface
 	// tmplBase is the base of local template search.
 	tmplBase wfv1.TemplateHolder
 	// workflow is the Workflow where templates will be stored
@@ -82,17 +86,40 @@ func NewContext(wftmplGetter WorkflowTemplateNamespacedGetter, cwftmplGetter Clu
 	return &Context{
 		wftmplGetter:  wftmplGetter,
 		cwftmplGetter: cwftmplGetter,
+		wftmplClient:  wftmplClientHolder,
+		cwftmplClient: cwftmplClientHolder,
 		tmplBase:      tmplBase,
 		workflow:      workflow,
 		log:           log.WithFields(log.Fields{}),
 	}
 }
 
-// NewContextFromClientSet returns new Context.
-func NewContextFromClientSet(wftmplClientset typed.WorkflowTemplateInterface, clusterWftmplClient typed.ClusterWorkflowTemplateInterface, tmplBase wfv1.TemplateHolder, workflow *wfv1.Workflow) *Context {
+var (
+	wftmplClientHolder  typed.WorkflowTemplateInterface
+	cwftmplClientHolder typed.ClusterWorkflowTemplateInterface
+)
+
+func SetWorkflowTemplateClient(wftmplClient typed.WorkflowTemplateInterface, cwftmplClient typed.ClusterWorkflowTemplateInterface) {
+	wftmplClientHolder, cwftmplClientHolder = wftmplClient, cwftmplClient
+}
+
+// NewContextWithClientSet returns new Context.
+// if Getter is nil, use clientset as Getter.
+func NewContextWithClientSet(wftmplGetter WorkflowTemplateNamespacedGetter, cwftmplGetter ClusterWorkflowTemplateGetter,
+	wftmplClient typed.WorkflowTemplateInterface, cwftmplClient typed.ClusterWorkflowTemplateInterface, tmplBase wfv1.TemplateHolder, workflow *wfv1.Workflow) *Context {
+	wftmplClientHolder, cwftmplClientHolder = wftmplClient, cwftmplClient
+	if wftmplGetter == nil {
+		wftmplGetter = WrapWorkflowTemplateInterface(wftmplClient)
+	}
+	if cwftmplGetter == nil {
+		cwftmplGetter = WrapClusterWorkflowTemplateInterface(cwftmplClient)
+	}
+
 	return &Context{
-		wftmplGetter:  WrapWorkflowTemplateInterface(wftmplClientset),
-		cwftmplGetter: WrapClusterWorkflowTemplateInterface(clusterWftmplClient),
+		wftmplGetter:  wftmplGetter,
+		cwftmplGetter: cwftmplGetter,
+		wftmplClient:  wftmplClient,
+		cwftmplClient: cwftmplClient,
 		tmplBase:      tmplBase,
 		workflow:      workflow,
 		log:           log.WithFields(log.Fields{}),
@@ -135,6 +162,12 @@ func (ctx *Context) GetTemplateFromRef(tmplRef *wfv1.TemplateRef) (*wfv1.Templat
 		}
 		return nil, err
 	}
+	if !tmplRef.ClusterScope && wftmpl != nil {
+		_, err = ctx.UpdateTemplateStatus(wftmpl.(*wfv1.WorkflowTemplate))
+		if err != nil {
+			log.Errorf("Update workflow template %s err: %v", wftmpl.GetName(), err)
+		}
+	}
 
 	template = wftmpl.GetTemplateByName(tmplRef.Template)
 
@@ -164,6 +197,17 @@ func (ctx *Context) GetCurrentTemplateBase() wfv1.TemplateHolder {
 
 func (ctx *Context) GetTemplateScope() string {
 	return string(ctx.tmplBase.GetResourceScope()) + "/" + ctx.tmplBase.GetName()
+}
+
+// UpdateTemplateStatus update the WorkflowTemplate.Status of a given WorkflowTemplate.
+func (ctx *Context) UpdateTemplateStatus(wftmple *wfv1.WorkflowTemplate) (*wfv1.WorkflowTemplate, error) {
+	if ctx.wftmplClient == nil {
+		ctx.log.Warnln("while try update template status, wftmplClient not set")
+		return wftmple, nil
+	}
+
+	wftmple.Status.LastRunAt = metav1.Now()
+	return ctx.wftmplClient.Update(context.TODO(), wftmple, metav1.UpdateOptions{})
 }
 
 // ResolveTemplate digs into referenes and returns a merged template.
