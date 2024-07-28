@@ -8385,6 +8385,9 @@
         },
         "spec": {
           "$ref": "#/definitions/io.argoproj.workflow.v1alpha1.WorkflowSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/io.argoproj.workflow.v1alpha1.WorkflowTemplateStatus"
         }
       }
     },
