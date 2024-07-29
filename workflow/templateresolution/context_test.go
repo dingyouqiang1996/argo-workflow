@@ -24,6 +24,16 @@ func createWorkflowTemplate(wfClientset wfclientset.Interface, yamlStr string) e
 	return err
 }
 
+func createClusterWorkflowTemplate(wfClientset wfclientset.Interface, yamlStr string) error {
+	ctx := context.Background()
+	cwftmpl := wfv1.MustUnmarshalClusterWorkflow(yamlStr)
+	_, err := wfClientset.ArgoprojV1alpha1().ClusterWorkflowTemplates().Create(ctx, cwftmpl, metav1.CreateOptions{})
+	if err != nil && apierr.IsAlreadyExists(err) {
+		return nil
+	}
+	return err
+}
+
 // Deprecated
 func unmarshalWftmpl(yamlStr string) *wfv1.WorkflowTemplate {
 	return wfv1.MustUnmarshalWorkflowTemplate(yamlStr)
@@ -402,7 +412,7 @@ func TestUpdateTemplLastRun(t *testing.T) {
 	wftemplateName := "some-workflow-template"
 	templateClient := wfClientset.ArgoprojV1alpha1().WorkflowTemplates(v1.NamespaceDefault)
 
-	_, err = ctx.UpdateTemplateStatus(wftmpl)
+	err = ctx.updateTemplateStatus(context.TODO(), wftmpl.GetName())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -413,4 +423,30 @@ func TestUpdateTemplLastRun(t *testing.T) {
 		return
 	}
 	assert.NotEmpty(t, wftmpl.Status.LastRunAt)
+}
+
+func TestUpdateCtemplLastRun(t *testing.T) {
+	wfClientset := fakewfclientset.NewSimpleClientset()
+	cwftmpl := wfv1.MustUnmarshalClusterWorkflow(someWorkflowTemplateYaml)
+	ctx := NewContextWithClientSet(nil, nil, wfClientset.ArgoprojV1alpha1().WorkflowTemplates(metav1.NamespaceDefault), wfClientset.ArgoprojV1alpha1().ClusterWorkflowTemplates(), cwftmpl, nil)
+
+	err := createClusterWorkflowTemplate(wfClientset, someWorkflowTemplateYaml)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	wftemplateName := "some-workflow-template"
+	ctemplateClient := wfClientset.ArgoprojV1alpha1().ClusterWorkflowTemplates()
+
+	err = ctx.updateCtemplateStatus(context.TODO(), cwftmpl.GetName())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cwftmpl, err = ctemplateClient.Get(context.Background(), wftemplateName, v1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	assert.NotEmpty(t, cwftmpl.Status.LastRunAt)
 }
