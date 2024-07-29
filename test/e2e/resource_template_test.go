@@ -63,11 +63,9 @@ kind: Workflow
 metadata:
   generateName: k8s-resource-tmpl-with-pod-
 spec:
-  serviceAccount: argo
   entrypoint: main
   templates:
     - name: main
-      serviceAccountName: argo
       resource:
         action: create
         setOwnerReference: true
@@ -79,7 +77,6 @@ spec:
           metadata:
             generateName: k8s-pod-resource-
           spec:
-            serviceAccountName: argo
             containers:
             - name: argosay-container
               image: argoproj/argosay:v2
@@ -103,11 +100,9 @@ kind: Workflow
 metadata:
   generateName: k8s-resource-tmpl-with-artifact-
 spec:
-  serviceAccount: argo
   entrypoint: main
   templates:
     - name: main
-      serviceAccountName: argo
       inputs:
         artifacts:
         - name: manifest
@@ -119,7 +114,6 @@ spec:
               metadata:
                 generateName: k8s-pod-resource-
               spec:
-                serviceAccountName: argo
                 containers:
                 - name: argosay-container
                   image: argoproj/argosay:v2
