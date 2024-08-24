@@ -184,6 +184,16 @@ Only available for `successCondition`
 | `response.body` | Response body (`string`) |
 | `response.headers` | Response headers (`map[string][]string`) |
 
+### CronWorkflows
+
+> v3.6 and after
+
+| Variable | Description|
+|----------|------------|
+| `cronworkflow.name` | Name of the CronWorkflow (`string`)
+| `cronworkflow.hasLastScheduledTime` | When `cronworkflows.lastScheduledTime` is a sane value this is set to `false` else `true` (`bool`) |
+| `cronworkflow.lastScheduledTime` | The time since this workflow was last scheduled (`time.Time`) |
+
 ### `RetryStrategy`
 
 When using the `expression` field within `retryStrategy`, special variables are available.
