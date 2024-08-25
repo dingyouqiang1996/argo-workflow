@@ -209,7 +209,11 @@ func (d *dagContext) assessDAGPhase(targetTasks []string, nodes wfv1.Nodes, isSh
 			// their "depends" clause during their respective "dependencies" to "depends" conversion. See "expandDependency"
 			// in ancestry.go
 			if task := d.GetTask(depName); task.ContinuesOn(branchPhase) {
-				continue
+				node, err := nodes.Get(d.taskNodeID(task.Name))
+				// if continuesON node is fulfilled, then we should consider it as failed
+				if err != nil || !node.Phase.Fulfilled() {
+					continue
+				}
 			}
 
 			result = branchPhase

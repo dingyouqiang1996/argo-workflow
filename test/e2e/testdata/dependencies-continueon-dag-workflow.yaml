@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: dependencies-continueon-dag-workflow
+spec:
+  entrypoint: dag
+  templates:
+    - name: dag
+      dag:
+        tasks:
+          - name: task-one
+            template: intentional-fail-template
+          - name: task-two
+            template: hello-world-template
+            dependencies:
+              - task-one
+            continueOn:
+              failed: true
+    - name: hello-world-template
+      container:
+        image: alpine:3.7
+        command:
+          - echo
+        args:
+          - hello world
+    - name: intentional-fail-template
+      container:
+        image: alpine:3.7
+        command:
+          - sh
+          - '-c'
+        args:
+          - echo intentional failure; exit 1
