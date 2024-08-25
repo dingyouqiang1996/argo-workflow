@@ -932,6 +932,20 @@ func (s *CLISuite) TestRetryWorkflowWithContinueOn() {
 		})
 }
 
+func (s *CLISuite) TestDependenciesContinueONDag() {
+	s.Given().
+		Workflow("@testdata/dependencies-continueon-dag-workflow.yaml").
+		When().
+		SubmitWorkflow().
+		WaitForWorkflow(fixtures.ToBeFailed).
+		Then().
+		ExpectWorkflow(func(t *testing.T, metadata *metav1.ObjectMeta, status *wfv1.WorkflowStatus) {
+			assert.Equal(t, wfv1.WorkflowFailed, status.Phase)
+			assert.Equal(t, wfv1.NodeFailed, status.Nodes.FindByDisplayName("task-one").Phase)
+			assert.Equal(t, wfv1.NodeOmitted, status.Nodes.FindByDisplayName("task-two").Phase)
+		})
+}
+
 func (s *CLISuite) TestWorkflowStop() {
 	s.Given().
 		Workflow("@smoke/basic.yaml").
